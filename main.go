@@ -9,7 +9,7 @@ import (
 )
 
 func includes_passion(text string) bool {
-	keywords := [...]string{"パッション", "ぱっしょん", "passion"}
+	keywords := [...]string{"パッション", "ぱっしょん", "passion", "Passion"}
 	for _, e := range keywords {
 		if strings.Contains(text, e) {
 			return true
