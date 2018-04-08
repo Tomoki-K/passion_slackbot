@@ -37,11 +37,6 @@ func run(api *slack.Client) int {
 					return 1
 				}
 				if isPassion {
-					// sender, err := rtm.GetUserInfo(ev.User)
-					// if err != nil {
-					// 	log.Print("Failed to retrieve user info")
-					// 	return 1
-					// }
 					// mention sender
 					text := "<@" + ev.User + "> パッションが足りません。"
 					rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
