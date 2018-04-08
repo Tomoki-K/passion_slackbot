@@ -8,14 +8,14 @@ import (
 	"github.com/nlopes/slack"
 )
 
-func includes_passion(text string) bool {
+func IncludesPassion(text string) (bool, error) {
 	keywords := [...]string{"パッション", "ぱっしょん", "passion", "Passion"}
 	for _, e := range keywords {
 		if strings.Contains(text, e) {
-			return true
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
 
 func run(api *slack.Client) int {
@@ -31,14 +31,16 @@ func run(api *slack.Client) int {
 
 			case *slack.MessageEvent:
 				log.Printf("Message: %v\n", ev)
-				if includes_passion(ev.Text) {
+				isPassion, err := IncludesPassion(ev.Text)
+				if err != nil {
+					log.Fatal(err)
+				}
+				if isPassion {
 					rtm.SendMessage(rtm.NewOutgoingMessage("パッションが足りません。", ev.Channel))
 				}
 
 			case *slack.InvalidAuthEvent:
-				log.Print("Invalid credentials")
-				return 1
-
+				log.Fatal("Invalid credentials")
 			}
 		}
 	}
