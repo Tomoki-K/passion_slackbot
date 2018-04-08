@@ -33,14 +33,16 @@ func run(api *slack.Client) int {
 				log.Printf("Message: %v\n", ev)
 				isPassion, err := IncludesPassion(ev.Text)
 				if err != nil {
-					log.Fatal(err)
+					log.Print(err)
+					return 1
 				}
 				if isPassion {
 					rtm.SendMessage(rtm.NewOutgoingMessage("パッションが足りません。", ev.Channel))
 				}
 
 			case *slack.InvalidAuthEvent:
-				log.Fatal("Invalid credentials")
+				log.Print("Invalid credentials")
+				return 1
 			}
 		}
 	}
