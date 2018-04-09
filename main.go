@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 
@@ -39,6 +40,9 @@ func run(api *slack.Client) int {
 				if isPassion {
 					// mention sender
 					text := "<@" + ev.User + "> パッションが足りません。"
+					if rand.Intn(100) < 5 {
+						text = "<@" + ev.User + "> 温かいし止まらない。"
+					}
 					rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
 				}
 
