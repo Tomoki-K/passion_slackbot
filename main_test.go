@@ -12,6 +12,9 @@ var testData = []struct {
 	{"パッションフルーツ", true},
 	{"やきそば", false},
 	{"ぱっ しょん", false},
+	{"PassioN", true},
+	{"", false},
+	{"   ", false},
 }
 
 func TestIncludesPassion(t *testing.T) {

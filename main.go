@@ -23,9 +23,9 @@ var aa = "" +
 var keyword2, _ = base64.StdEncoding.DecodeString("44GK44Gj44Gx44GE")
 
 func IncludesPassion(text string) (bool, error) {
-	keywords := [...]string{"パッション", "ぱっしょん", "passion", "Passion"}
+	keywords := [...]string{"パッション", "ぱっしょん", "passion"}
 	for _, e := range keywords {
-		if strings.Contains(text, e) {
+		if strings.Contains(strings.ToLower(text), e) {
 			return true, nil
 		}
 	}
