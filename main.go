@@ -10,6 +10,9 @@ import (
 	"github.com/nlopes/slack"
 )
 
+var passionMsg = "パッションが足りません。"
+var rareMsg = "温かいし止まらない。"
+
 var aa = "" +
 	"44CA44CA44CAIF8g44CA4oipDQrjgIDjgIAo44C" +
 	"A776f4oiA776fKeW9oeOAgOOBiuOBo+OBseOBhC" +
@@ -27,6 +30,15 @@ func IncludesPassion(text string) (bool, error) {
 	return false, nil
 }
 
+func decodeAA(encAA string) string {
+	b, err := base64.StdEncoding.DecodeString(encAA)
+	if err != nil {
+		log.Print(err)
+		return passionMsg // fallback to default if err occures
+	}
+	return "\n" + string(b)
+}
+
 func run(api *slack.Client) int {
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
@@ -40,19 +52,17 @@ func run(api *slack.Client) int {
 
 			case *slack.MessageEvent:
 				log.Printf("Message: %v\n", ev)
+				mentionTag := "<@" + ev.User + "> "
 				isPassion, _ := IncludesPassion(ev.Text)
 				if isPassion {
-					// mention sender
-					text := "<@" + ev.User + "> パッションが足りません。"
+					text := mentionTag + passionMsg // default message
 					if rand.Intn(100) < 5 {
-						text = "<@" + ev.User + "> 温かいし止まらない。"
+						text = mentionTag + rareMsg // 5% chance of rare message
 					}
 					rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
 				} else {
 					if strings.Contains(ev.Text, "おっぱい") {
-						b, _ := base64.StdEncoding.DecodeString(aa)
-						text := "<@" + ev.User + ">\n" + string(b)
-						rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
+						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+decodeAA(aa), ev.Channel))
 					}
 				}
 
