@@ -20,6 +20,8 @@ var aa = "" +
 	"uW9oQ0K44CAIOOAgHzjgIDjgIDjgIB8DQrjgIAg" +
 	"44CA44GXIOKMku+8qg=="
 
+var keyword2, _ = base64.StdEncoding.DecodeString("44GK44Gj44Gx44GE")
+
 func IncludesPassion(text string) (bool, error) {
 	keywords := [...]string{"パッション", "ぱっしょん", "passion", "Passion"}
 	for _, e := range keywords {
@@ -61,7 +63,8 @@ func run(api *slack.Client) int {
 					}
 					rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
 				} else {
-					if strings.Contains(ev.Text, "おっぱい") {
+					// other matches
+					if strings.Contains(ev.Text, string(keyword2)) {
 						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+decodeAA(aa), ev.Channel))
 					}
 				}
