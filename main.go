@@ -6,9 +6,13 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/Tomoki-K/passion_tarinai/image"
 	"github.com/nlopes/slack"
 )
+
+var botId = "<@UA26NB6H0>"
 
 var passionMsg = "パッションが足りません。"
 var rareMsg = "温かいし止まらない。"
@@ -58,6 +62,7 @@ func run(api *slack.Client) int {
 				isPassion, _ := IncludesPassion(ev.Text)
 				if isPassion {
 					text := mentionTag + passionMsg // default message
+					rand.Seed(time.Now().UTC().UnixNano())
 					if rand.Intn(100) < 5 {
 						text = mentionTag + rareMsg // 5% chance of rare message
 					}
@@ -66,6 +71,16 @@ func run(api *slack.Client) int {
 					// other matches
 					if strings.Contains(ev.Text, string(keyword2)) {
 						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+decodeAA(aa), ev.Channel))
+					}
+					// image search
+					if strings.Contains(ev.Text, botId+" img:") {
+						searchWord := strings.Replace(ev.Text, botId+" img:", "", -1)
+						imgUrl, err := image.GetImgUrl(searchWord)
+						if err != nil {
+							imgUrl = "invalid search. (Usage: '@passion_bot img: passion')"
+							log.Print(err)
+						}
+						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+imgUrl, ev.Channel))
 					}
 				}
 
