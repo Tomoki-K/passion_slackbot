@@ -13,7 +13,7 @@ import (
 	// "github.com/Tomoki-K/passion_tarinai/models"
 )
 
-func GetImgUrl(keyword string) (string, error) {
+func ImageSearch(keyword string) (string, error) {
 	word := strings.TrimSpace(keyword)
 	if len(word) < 1 {
 		return "", errors.New("invalid search param")
@@ -25,16 +25,13 @@ func GetImgUrl(keyword string) (string, error) {
 		Type:     "image",
 		Count:    "5",
 	}
-
-	url := baseUrl + "?key=" + s.Key + "&cx=" + s.EngineId + "&searchType=" + s.Type + "&num=" + s.Count + "&q=" + word
-	log.Println(url)
-
-	imageUrl := ParseJson(url)
-	return imageUrl, nil
+	searchUrl := baseUrl + "?key=" + s.Key + "&cx=" + s.EngineId + "&searchType=" + s.Type + "&num=" + s.Count + "&q=" + word
+	log.Println(searchUrl)
+	return GetImgUrl(searchUrl), nil
 }
 
-func ParseJson(url string) string {
-	var imageUrl = "image not found"
+func GetImgUrl(url string) string {
+	var imgUrl = "image not found"
 
 	response, err := http.Get(url)
 	if err != nil {
@@ -52,9 +49,9 @@ func ParseJson(url string) string {
 	}
 	if data.Items != nil {
 		rand.Seed(time.Now().UTC().UnixNano())
-		imageUrl = data.Items[rand.Intn(5)].Link
-		log.Println(imageUrl)
+		imgUrl = data.Items[rand.Intn(5)].Link
+		log.Println(imgUrl)
 	}
 
-	return imageUrl
+	return imgUrl
 }

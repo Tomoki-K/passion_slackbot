@@ -71,13 +71,12 @@ func run(api *slack.Client) int {
 					// other matches
 					if strings.Contains(ev.Text, string(keyword2)) {
 						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+decodeAA(aa), ev.Channel))
-					}
-					// image search
-					if strings.Contains(ev.Text, botId+" img:") {
-						searchWord := strings.Replace(ev.Text, botId+" img:", "", -1)
-						imgUrl, err := image.GetImgUrl(searchWord)
+					} else if strings.Contains(ev.Text, botId) && strings.Contains(ev.Text, "の画像") { // image search
+						searchWord := strings.Replace(ev.Text, "の画像", "", -1)
+						searchWord = strings.Replace(searchWord, botId, "", -1)
+						imgUrl, err := image.ImageSearch(searchWord)
 						if err != nil {
-							imgUrl = "invalid search. (Usage: '@passion_bot img: passion')"
+							imgUrl = "invalid search. (Usage: '@passion_bot パッションの画像')"
 							log.Print(err)
 						}
 						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+imgUrl, ev.Channel))
