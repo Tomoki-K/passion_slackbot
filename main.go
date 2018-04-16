@@ -68,10 +68,13 @@ func run(api *slack.Client) int {
 					}
 					rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
 				} else {
+					isMentioned := strings.Contains(ev.Text, botId)
 					// other matches
 					if strings.Contains(ev.Text, string(keyword2)) {
 						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+decodeAA(aa), ev.Channel))
-					} else if strings.Contains(ev.Text, botId) && strings.Contains(ev.Text, "の画像") { // image search
+
+						// image search
+					} else if isMentioned && strings.Contains(ev.Text, "の画像") {
 						searchWord := strings.Replace(ev.Text, "の画像", "", -1)
 						searchWord = strings.Replace(searchWord, botId, "", -1)
 						imgUrl, err := image.ImageSearch(searchWord)
@@ -80,7 +83,23 @@ func run(api *slack.Client) int {
 							log.Print(err)
 						}
 						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+imgUrl, ev.Channel))
+
+						// clean up
+					} else if isMentioned && strings.Contains(ev.Text, "deleteAllMsgInChannel") {
+						var params = slack.GetConversationHistoryParameters{ChannelID: ev.Channel, Limit: 100}
+						hist, err := api.GetConversationHistory(&params)
+						if err != nil {
+							log.Print(err)
+						} else {
+							for _, v := range hist.Messages {
+								api.DeleteMessage(ev.Channel, v.Timestamp)
+								log.Println(v.Text + " ===> deleted")
+								time.Sleep(100 * time.Millisecond)
+							}
+							log.Println("done!")
+						}
 					}
+
 				}
 
 			case *slack.InvalidAuthEvent:
