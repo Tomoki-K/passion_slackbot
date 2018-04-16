@@ -2,7 +2,6 @@ package image
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -10,14 +9,10 @@ import (
 	"os"
 	"strings"
 	"time"
-	// "github.com/Tomoki-K/passion_tarinai/models"
 )
 
 func ImageSearch(keyword string) (string, error) {
 	word := strings.TrimSpace(keyword)
-	if len(word) < 1 {
-		return "", errors.New("invalid search param")
-	}
 	baseUrl := "https://www.googleapis.com/customsearch/v1"
 	s := Search{
 		Key:      os.Getenv("GOOGLE_PASSION_KEY"),

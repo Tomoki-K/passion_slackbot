@@ -74,9 +74,9 @@ func run(api *slack.Client) int {
 					} else if strings.Contains(ev.Text, botId) && strings.Contains(ev.Text, "の画像") { // image search
 						searchWord := strings.Replace(ev.Text, "の画像", "", -1)
 						searchWord = strings.Replace(searchWord, botId, "", -1)
-						imgUrl, err := image.ImageSearch(searchWord)
-						if err != nil {
-							imgUrl = "invalid search. (Usage: '@passion_bot パッションの画像')"
+						imgUrl, err := image.ImageSearch(searchWord)sss
+						if err != nil || len(strings.TrimSpace(searchWord)) < 1 {
+							imgUrl = "invalid search. (Usage: '@passion_bot 〇〇の画像')"
 							log.Print(err)
 						}
 						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+imgUrl, ev.Channel))
