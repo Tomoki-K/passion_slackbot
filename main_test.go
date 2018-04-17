@@ -19,10 +19,7 @@ var testData = []struct {
 
 func TestIncludesPassion(t *testing.T) {
 	for _, c := range testData {
-		out, err := IncludesPassion(c.in)
-		if err != nil {
-			t.Fatal(err)
-		}
+		out := IncludesPassion(c.in)
 		if out != c.expected {
 			t.Errorf("Error: Got %v\n want %v", out, c.expected)
 		}

@@ -26,14 +26,14 @@ var aa = "" +
 
 var keyword2, _ = base64.StdEncoding.DecodeString("44GK44Gj44Gx44GE")
 
-func IncludesPassion(text string) (bool, error) {
+func IncludesPassion(text string) bool {
 	keywords := [...]string{"パッション", "ぱっしょん", "passion"}
 	for _, e := range keywords {
 		if strings.Contains(strings.ToLower(text), e) {
-			return true, nil
+			return true
 		}
 	}
-	return false, nil
+	return false
 }
 
 func decodeAA(encAA string) string {
@@ -58,19 +58,28 @@ func run(api *slack.Client) int {
 
 			case *slack.MessageEvent:
 				log.Printf("Message: %v\n", ev)
-				mentionTag := "<@" + ev.User + "> "
-				isPassion, _ := IncludesPassion(ev.Text)
-				if isPassion {
-					text := mentionTag + passionMsg // default message
-					rand.Seed(time.Now().UTC().UnixNano())
-					if rand.Intn(100) < 5 {
-						text = mentionTag + rareMsg // 5% chance of rare message
-					}
-					rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
-				} else {
+				if !strings.Contains(botId, ev.User) {
+					mentionTag := "<@" + ev.User + "> "
 					isMentioned := strings.Contains(ev.Text, botId)
-					// other matches
-					if strings.Contains(ev.Text, string(keyword2)) {
+
+					if IncludesPassion(ev.Text) {
+						text := mentionTag + passionMsg // default message
+						rand.Seed(time.Now().UTC().UnixNano())
+						if rand.Intn(100) < 5 {
+							text = mentionTag + rareMsg // 5% chance of rare message
+						}
+						rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
+
+					} else if strings.Contains(ev.Text, "申し訳ない") {
+						var fileParams = slack.FileUploadParameters{
+							File:     "assets/hakase.jpg",
+							Filetype: "image",
+							Filename: "本当に申し訳ない",
+							Channels: []string{ev.Channel},
+						}
+						rtm.UploadFile(fileParams)
+
+					} else if strings.Contains(ev.Text, string(keyword2)) {
 						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+decodeAA(aa), ev.Channel))
 
 						// image search
