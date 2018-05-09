@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Tomoki-K/passion_tarinai/image"
+	"github.com/Tomoki-K/passion_slackbot/image"
 	"github.com/nlopes/slack"
 )
 

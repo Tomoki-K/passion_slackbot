@@ -1,6 +1,6 @@
 FROM golang:1.8
 
-WORKDIR /go/src/github.com/Tomoki-K/passion_tarinai
+WORKDIR /go/src/github.com/Tomoki-K/passion_slackbot
 COPY . .
 
 # install supervisor
