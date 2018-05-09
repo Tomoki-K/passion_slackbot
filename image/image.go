@@ -6,13 +6,13 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
-	"strings"
 	"time"
 )
 
 func ImageSearch(keyword string) (string, error) {
-	word := strings.TrimSpace(keyword)
+	word := &url.URL{Path: keyword}
 	baseUrl := "https://www.googleapis.com/customsearch/v1"
 	s := Search{
 		Key:      os.Getenv("GOOGLE_PASSION_KEY"),
@@ -20,8 +20,8 @@ func ImageSearch(keyword string) (string, error) {
 		Type:     "image",
 		Count:    "5",
 	}
-	searchUrl := baseUrl + "?key=" + s.Key + "&cx=" + s.EngineId + "&searchType=" + s.Type + "&num=" + s.Count + "&q=" + word
-	log.Println(searchUrl)
+	searchUrl := baseUrl + "?key=" + s.Key + "&cx=" + s.EngineId + "&searchType=" + s.Type + "&num=" + s.Count + "&q=" + word.String()
+	log.Println("image search: " + searchUrl)
 	return GetImgUrl(searchUrl), nil
 }
 
