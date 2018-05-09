@@ -1,4 +1,4 @@
-package main
+package controllers
 
 import (
 	"encoding/base64"
@@ -11,11 +11,8 @@ import (
 	"github.com/nlopes/slack"
 )
 
-var botId = "<@UA26NB6H0>"
-
 var passionMsg = "パッションが足りません。"
 var rareMsg = "温かいし止まらない。"
-
 var aa = "" +
 	"44CA44CA44CAIF8g44CA4oipDQrjgIDjgIAo44C" +
 	"A776f4oiA776fKeW9oeOAgOOBiuOBo+OBseOBhC" +
@@ -23,63 +20,71 @@ var aa = "" +
 	"uW9oQ0K44CAIOOAgHzjgIDjgIDjgIB8DQrjgIAg" +
 	"44CA44GXIOKMku+8qg=="
 
-var keyword2, _ = base64.StdEncoding.DecodeString("44GK44Gj44Gx44GE")
+type MsgController struct {
+	Rtm    *slack.RTM
+	Ev     *slack.MessageEvent
+	Client *slack.Client
+	BotId  string
+}
+
+func NewMsgController(rtm *slack.RTM, ev *slack.MessageEvent, api *slack.Client, id string) MsgController {
+	return MsgController{Rtm: rtm, Ev: ev, Client: api, BotId: id}
+}
 
 func decodeAA(encAA string) string {
 	b, err := base64.StdEncoding.DecodeString(encAA)
 	if err != nil {
-		log.Print(err)
 		return passionMsg // fallback to default if err occures
 	}
 	return "\n" + string(b)
 }
 
-func sendPassion(rtm *slack.RTM, ev *slack.MessageEvent) {
-	mentionTag := "<@" + ev.User + "> "
+func (c MsgController) SendPassion() {
+	mentionTag := "<@" + c.Ev.User + "> "
 	text := mentionTag + passionMsg // default message
 	rand.Seed(time.Now().UTC().UnixNano())
 	if rand.Intn(100) < 5 {
 		text = mentionTag + rareMsg // 5% chance of rare message
 	}
-	rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
+	c.Rtm.SendMessage(c.Rtm.NewOutgoingMessage(text, c.Ev.Channel))
 }
 
-func sendGoogleImage(rtm *slack.RTM, ev *slack.MessageEvent) {
-	mentionTag := "<@" + ev.User + "> "
-	searchWord := strings.Replace(ev.Text, "の画像", "", -1)
-	searchWord = strings.Replace(searchWord, botId, "", -1)
+func (c MsgController) SendGoogleImage() {
+	mentionTag := "<@" + c.Ev.User + "> "
+	searchWord := strings.Replace(c.Ev.Text, "の画像", "", -1)
+	searchWord = strings.Replace(searchWord, c.BotId, "", -1)
 	imgUrl, err := image.ImageSearch(searchWord)
 	if err != nil || len(strings.TrimSpace(searchWord)) < 1 {
 		imgUrl = "invalid search. (Usage: '@passion_bot 〇〇の画像')"
 		log.Print(err)
 	}
-	rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+imgUrl, ev.Channel))
+	c.Rtm.SendMessage(c.Rtm.NewOutgoingMessage(mentionTag+imgUrl, c.Ev.Channel))
 }
 
-func sendImage(rtm *slack.RTM, ev *slack.MessageEvent, filename string, title string) {
+func (c MsgController) SendImage(filename string, title string) {
 	var fileParams = slack.FileUploadParameters{
 		File:     "assets/" + filename,
 		Filetype: "image",
 		Filename: "本当に申し訳ない",
-		Channels: []string{ev.Channel},
+		Channels: []string{c.Ev.Channel},
 	}
-	rtm.UploadFile(fileParams)
+	c.Rtm.UploadFile(fileParams)
 }
 
-func sendAA(rtm *slack.RTM, ev *slack.MessageEvent) {
-	mentionTag := "<@" + ev.User + "> "
+func (c MsgController) SendAA() {
+	mentionTag := "<@" + c.Ev.User + "> "
 	var text = mentionTag + decodeAA(aa)
-	rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
+	c.Rtm.SendMessage(c.Rtm.NewOutgoingMessage(text, c.Ev.Channel))
 }
 
-func deleteAllMsg(api *slack.Client, ev *slack.MessageEvent) {
-	var params = slack.GetConversationHistoryParameters{ChannelID: ev.Channel, Limit: 100}
-	hist, err := api.GetConversationHistory(&params)
+func (c MsgController) DeleteAllMsg() {
+	var params = slack.GetConversationHistoryParameters{ChannelID: c.Ev.Channel, Limit: 100}
+	hist, err := c.Client.GetConversationHistory(&params)
 	if err != nil {
 		log.Print(err)
 	} else {
 		for _, v := range hist.Messages {
-			api.DeleteMessage(ev.Channel, v.Timestamp)
+			c.Client.DeleteMessage(c.Ev.Channel, v.Timestamp)
 			log.Println(v.Text + " ===> deleted")
 			time.Sleep(100 * time.Millisecond)
 		}

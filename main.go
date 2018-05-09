@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/base64"
 	"log"
 	"os"
 	"strings"
 
+	"github.com/Tomoki-K/passion_slackbot/controllers"
 	"github.com/nlopes/slack"
 )
 
@@ -31,21 +33,31 @@ func run(api *slack.Client) int {
 
 			case *slack.MessageEvent:
 				log.Printf("Message: %v\n", ev)
-				if !strings.Contains(botId, ev.User) {
-					isMentioned := strings.Contains(ev.Text, botId)
 
-					if IncludesPassion(ev.Text) {
-						sendPassion(rtm, ev)
-					} else if isMentioned && strings.Contains(ev.Text, "の画像") {
-						sendGoogleImage(rtm, ev) // image search
+				mc := controllers.NewMsgController(rtm, ev, api, "<@UA26NB6H0>")
+
+				if !strings.Contains(mc.BotId, ev.User) {
+					isMentioned := strings.Contains(ev.Text, mc.BotId)
+					keyword2, _ := base64.StdEncoding.DecodeString("44GK44Gj44Gx44GE")
+
+					if isMentioned {
+						if strings.Contains(ev.Text, "の画像") {
+							mc.SendGoogleImage() // image search
+
+						} else if strings.Contains(ev.Text, "deleteAllMsgInChannel") {
+							mc.DeleteAllMsg() // clean up
+						}
+					} else if IncludesPassion(ev.Text) {
+						mc.SendPassion()
+
 					} else if strings.Contains(ev.Text, "申し訳ない") {
-						sendImage(rtm, ev, "hakase.jpg", "本当に申し訳ない")
+						mc.SendImage("hakase.jpg", "本当に申し訳ない")
+
 					} else if strings.Contains(ev.Text, "すみません") {
-						sendImage(rtm, ev, "guusei.jpg", "ぐう聖すぎるほんとすみません")
+						mc.SendImage("guusei.jpg", "ぐう聖すぎるほんとすみません")
+
 					} else if strings.Contains(ev.Text, string(keyword2)) {
-						sendAA(rtm, ev)
-					} else if isMentioned && strings.Contains(ev.Text, "deleteAllMsgInChannel") {
-						deleteAllMsg(api, ev) // clean up
+						mc.SendAA()
 					}
 
 				}
