@@ -79,6 +79,15 @@ func run(api *slack.Client) int {
 						}
 						rtm.UploadFile(fileParams)
 
+					} else if strings.Contains(ev.Text, "すみません") {
+						var fileParams = slack.FileUploadParameters{
+							File:     "assets/guusei.jpg",
+							Filetype: "image",
+							Filename: "ぐう聖すぎるほんとすみません",
+							Channels: []string{ev.Channel},
+						}
+						rtm.UploadFile(fileParams)
+
 					} else if strings.Contains(ev.Text, string(keyword2)) {
 						rtm.SendMessage(rtm.NewOutgoingMessage(mentionTag+decodeAA(aa), ev.Channel))
 
