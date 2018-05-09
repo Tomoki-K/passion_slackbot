@@ -65,7 +65,7 @@ func (c MsgController) SendImage(filename string, title string) {
 	var fileParams = slack.FileUploadParameters{
 		File:     "assets/" + filename,
 		Filetype: "image",
-		Filename: "本当に申し訳ない",
+		Filename: title,
 		Channels: []string{c.Ev.Channel},
 	}
 	c.Rtm.UploadFile(fileParams)
