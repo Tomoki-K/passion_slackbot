@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/base64"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"strings"
@@ -94,4 +95,13 @@ func (c MsgController) DeleteAllMsg() {
 		}
 		log.Println("done!")
 	}
+}
+
+func (c MsgController) SendHelp() {
+	buf, err := ioutil.ReadFile("features.txt")
+	if err != nil {
+		log.Print(err)
+	}
+	s := string(buf)
+	c.Rtm.SendMessage(c.Rtm.NewOutgoingMessage(s, c.Ev.Channel))
 }

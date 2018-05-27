@@ -46,6 +46,10 @@ func run(api *slack.Client) int {
 
 						} else if strings.Contains(ev.Text, "deleteAllMsgInChannel") {
 							mc.DeleteAllMsg() // clean up
+						} else if ev.Text == mc.BotId+" help" {
+							mc.SendHelp()
+						} else {
+							mc.Rtm.SendMessage(mc.Rtm.NewOutgoingMessage("`@passion_bot help` for help", mc.Ev.Channel))
 						}
 					} else if IncludesPassion(ev.Text) {
 						mc.SendPassion()
