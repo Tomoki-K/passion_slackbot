@@ -13,6 +13,7 @@ import (
 
 var passionMsg = "パッションが足りません。"
 var rareMsg = "温かいし止まらない。"
+var srareMsg = ":v::gunma::v:"
 var aa = "" +
 	"44CA44CA44CAIF8g44CA4oipDQrjgIDjgIAo44C" +
 	"A776f4oiA776fKeW9oeOAgOOBiuOBo+OBseOBhC" +
@@ -43,7 +44,10 @@ func (c MsgController) SendPassion() {
 	mentionTag := "<@" + c.Ev.User + "> "
 	text := mentionTag + passionMsg // default message
 	rand.Seed(time.Now().UTC().UnixNano())
-	if rand.Intn(100) < 5 {
+	randInt := rand.Intn(100)
+	if randInt < 1 {
+		text = mentionTag + srareMsg // 1% chance of rare message
+	} else if randInt < 5 {
 		text = mentionTag + rareMsg // 5% chance of rare message
 	}
 	c.Rtm.SendMessage(c.Rtm.NewOutgoingMessage(text, c.Ev.Channel))
