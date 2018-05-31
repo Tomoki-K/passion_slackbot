@@ -11,7 +11,10 @@ import (
 )
 
 func CreateBobuneImg(user *slack.User) (string, error) {
-	userName := user.Name
+	userName := user.Profile.DisplayName
+	if len(userName) == 0 {
+		userName = user.Profile.RealName
+	}
 	fileName := user.ID + ".png"
 	iconPath := dlIconImage(user, fileName)
 
