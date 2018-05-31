@@ -65,7 +65,7 @@ func (c MsgController) SendPassion(api *slack.Client, history []models.History) 
 		var fileParams = slack.FileUploadParameters{
 			File:     "assets/out/" + filename,
 			Filetype: "image",
-			Filename: "",
+			Filename: "1日1パッション",
 			Channels: []string{c.Ev.Channel},
 		}
 		c.Rtm.UploadFile(fileParams)
