@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Tomoki-K/passion_slackbot/controllers"
+	"github.com/Tomoki-K/passion_slackbot/models"
 	"github.com/nlopes/slack"
 )
 
@@ -20,9 +21,28 @@ func IncludesPassion(text string) bool {
 	return false
 }
 
+func newPassionHistory(api *slack.Client) ([]models.History, error) {
+	members, err := api.GetUsers()
+	if err != nil {
+		return nil, err
+	}
+	var history []models.History
+	for _, m := range members {
+		newHist := models.History{UserID: m.ID}
+		history = append(history, newHist)
+	}
+	return history, nil
+}
+
 func run(api *slack.Client) int {
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
+
+	passionHistory, err := newPassionHistory(api)
+	if err != nil {
+		log.Print("Failed to create history")
+		return 1
+	}
 
 	for {
 		select {
@@ -52,7 +72,7 @@ func run(api *slack.Client) int {
 							mc.Rtm.SendMessage(mc.Rtm.NewOutgoingMessage("`@passion_bot help` for help", mc.Ev.Channel))
 						}
 					} else if IncludesPassion(ev.Text) {
-						mc.SendPassion()
+						passionHistory = mc.SendPassion(passionHistory)
 
 					} else if strings.Contains(ev.Text, "申し訳ない") {
 						mc.SendImage("hakase.jpg", "本当に申し訳ない")

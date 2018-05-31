@@ -9,8 +9,16 @@ import (
 	"time"
 
 	"github.com/Tomoki-K/passion_slackbot/image"
+	"github.com/Tomoki-K/passion_slackbot/models"
 	"github.com/nlopes/slack"
 )
+
+type MsgController struct {
+	Rtm    *slack.RTM
+	Ev     *slack.MessageEvent
+	Client *slack.Client
+	BotId  string
+}
 
 var passionMsg = "パッションが足りません。"
 var rareMsg = "温かいし止まらない。"
@@ -21,13 +29,6 @@ var aa = "" +
 	"HjgYrjgaPjgbHjgYQhDQrjgIDjgIAo44CAIOKKg" +
 	"uW9oQ0K44CAIOOAgHzjgIDjgIDjgIB8DQrjgIAg" +
 	"44CA44GXIOKMku+8qg=="
-
-type MsgController struct {
-	Rtm    *slack.RTM
-	Ev     *slack.MessageEvent
-	Client *slack.Client
-	BotId  string
-}
 
 func NewMsgController(rtm *slack.RTM, ev *slack.MessageEvent, api *slack.Client, id string) MsgController {
 	return MsgController{Rtm: rtm, Ev: ev, Client: api, BotId: id}
@@ -41,17 +42,44 @@ func decodeAA(encAA string) string {
 	return "\n" + string(b)
 }
 
-func (c MsgController) SendPassion() {
-	mentionTag := "<@" + c.Ev.User + "> "
-	text := mentionTag + passionMsg // default message
-	rand.Seed(time.Now().UTC().UnixNano())
-	randInt := rand.Intn(100)
-	if randInt < 1 {
-		text = mentionTag + srareMsg // 1% chance of rare message
-	} else if randInt < 5 {
-		text = mentionTag + rareMsg // 5% chance of rare message
+func hasPassionedToday(user string, hist []models.History) bool {
+	today := time.Now().Format("2006-01-02")
+	for _, h := range hist {
+		if h.UserID == user && h.LastPassion.Format("2006-01-02") == today {
+			return true
+		}
 	}
-	c.Rtm.SendMessage(c.Rtm.NewOutgoingMessage(text, c.Ev.Channel))
+	return false
+}
+
+func (c MsgController) SendPassion(history []models.History) []models.History {
+	mentionTag := "<@" + c.Ev.User + "> "
+
+	if hasPassionedToday(c.Ev.User, history) {
+		text := mentionTag + "1日1パッション"
+		c.Rtm.SendMessage(c.Rtm.NewOutgoingMessage(text, c.Ev.Channel))
+		return history
+	} else {
+		text := mentionTag + passionMsg // default message
+		rand.Seed(time.Now().UTC().UnixNano())
+		randInt := rand.Intn(100)
+		if randInt < 1 {
+			text = mentionTag + srareMsg // 1% chance of rare message
+		} else if randInt < 5 {
+			text = mentionTag + rareMsg // 5% chance of rare message
+		}
+		c.Rtm.SendMessage(c.Rtm.NewOutgoingMessage(text, c.Ev.Channel))
+
+		// write history
+		var newHistory []models.History
+		for _, h := range history {
+			if h.UserID == c.Ev.User {
+				h.LastPassion = time.Now()
+			}
+			newHistory = append(newHistory, h)
+		}
+		return newHistory
+	}
 }
 
 func (c MsgController) SendGoogleImage() {
