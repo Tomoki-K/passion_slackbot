@@ -72,7 +72,7 @@ func run(api *slack.Client) int {
 							mc.Rtm.SendMessage(mc.Rtm.NewOutgoingMessage("`@passion_bot help` for help", mc.Ev.Channel))
 						}
 					} else if IncludesPassion(ev.Text) {
-						passionHistory = mc.SendPassion(passionHistory)
+						passionHistory = mc.SendPassion(api, passionHistory)
 
 					} else if strings.Contains(ev.Text, "申し訳ない") {
 						mc.SendImage("hakase.jpg", "本当に申し訳ない")

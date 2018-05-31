@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Tomoki-K/passion_slackbot/bobuneMaker"
 	"github.com/Tomoki-K/passion_slackbot/image"
 	"github.com/Tomoki-K/passion_slackbot/models"
 	"github.com/nlopes/slack"
@@ -52,13 +53,24 @@ func hasPassionedToday(user string, hist []models.History) bool {
 	return false
 }
 
-func (c MsgController) SendPassion(history []models.History) []models.History {
+func (c MsgController) SendPassion(api *slack.Client, history []models.History) []models.History {
 	mentionTag := "<@" + c.Ev.User + "> "
 
 	if hasPassionedToday(c.Ev.User, history) {
-		text := mentionTag + "1日1パッション"
-		c.Rtm.SendMessage(c.Rtm.NewOutgoingMessage(text, c.Ev.Channel))
+		sender, err := api.GetUserInfo(c.Ev.User)
+		filename, err := bobune.CreateBobuneImg(sender)
+		if err != nil {
+			log.Print(err)
+		}
+		var fileParams = slack.FileUploadParameters{
+			File:     "assets/out/" + filename,
+			Filetype: "image",
+			Filename: "",
+			Channels: []string{c.Ev.Channel},
+		}
+		c.Rtm.UploadFile(fileParams)
 		return history
+
 	} else {
 		text := mentionTag + passionMsg // default message
 		rand.Seed(time.Now().UTC().UnixNano())
