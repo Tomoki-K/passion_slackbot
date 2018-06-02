@@ -32,7 +32,7 @@ func CreateBobuneImg(user *slack.User) (string, error) {
 
 	dc := gg.NewContext(width, height)
 	dc.SetRGB(0, 0, 0)
-	dc.LoadFontFace("assets/fonts/Hack-Bold.ttf", 40)
+	dc.LoadFontFace("assets/fonts/GenShinGothic.ttf", 40)
 	dc.DrawRoundedRectangle(0, 0, 512, 512, 0)
 	dc.DrawImage(bgImg, 0, 0)
 	dc.DrawImage(iconImg, width*4/5-96, height*1/4)
